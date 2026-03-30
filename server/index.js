@@ -10,7 +10,7 @@ const port = 5000;
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://your-app.vercel.app'   // add your Vercel URL here after deploying
+    process.env.FRONT_END_URL
   ]
 }));
 app.use(express.json());

@@ -18,7 +18,7 @@ body { background: #000000; color: #F0F4EF; font-family: sans-serif; }
   width: fit-content;
   padding: 0;
 }
-.header-content h1 { padding: 1rem 3rem; font-size: 2.6em; font-weight: 600; color: #fff; }
+.header-content h1 { padding: 0.8rem 3rem; font-size: 2.2em; font-weight: 600; color: #fff; }
 .header-content p {margin-top: 0px; font-size: 0.85rem; color: #666; }
 
 .app-body {

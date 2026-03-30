@@ -37,7 +37,6 @@ async function researchCompany(companyName) {
   for await (const event of stream) {
     if (event.type === "PROGRESS") {
       console.log(`[${companyName}] ${event.purpose}`)
-      console.log(`[${companyName}] event keys:`, Object.keys(event)) // ADD THIS TEMPORARILY
       if (event.url && !visitedUrls.includes(event.url)) {
         visitedUrls.push(event.url)
       }
@@ -45,19 +44,26 @@ async function researchCompany(companyName) {
 
     if (event.type === "COMPLETE") {
       if (event.status === RunStatus.COMPLETED) {
-
-        console.log(`[${companyName}] COMPLETE keys:`, Object.keys(event))
-        console.log(`[${companyName}] full result:`, JSON.stringify(event.result, null, 2))
-
         console.log(`✅ [${companyName}] Research complete.`)
-        console.log(`[${companyName}] Sources visited:`, visitedUrls)
 
         let result = event.result
+
+        // on production, result comes as { result: "```json\n{...}\n```" }
+        if (result && typeof result === 'object' && typeof result.result === 'string') {
+          result = result.result
+        }
+
+        // strip markdown code fences if present
         if (typeof result === 'string') {
+          result = result
+            .replace(/```json/gi, '')
+            .replace(/```/g, '')
+            .trim()
           try {
             result = JSON.parse(result)
+            console.log(`[${companyName}] parsed successfully`)
           } catch (e) {
-            console.error(`[${companyName}] Failed to parse result:`, e)
+            console.error(`[${companyName}] JSON parse failed:`, e.message)
             return { company: companyName, error: 'Failed to parse research result' }
           }
         }

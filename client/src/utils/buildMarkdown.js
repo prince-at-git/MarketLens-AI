@@ -5,6 +5,9 @@ export function buildMarkdown(rawData) {
     }
     const d = item.data
 
+    // capitalize first letter of company name
+    const companyName = item.company.charAt(0).toUpperCase() + item.company.slice(1)
+
     const risks = Array.isArray(d.risks_opportunities?.risks)
       ? d.risks_opportunities.risks.map(r => `- ${r}`).join('\n')
       : d.risks_opportunities?.risks || 'N/A'
@@ -21,15 +24,16 @@ export function buildMarkdown(rawData) {
       ? d.recent_news.map(n => `- ${n}`).join('\n')
       : d.recent_news || 'N/A'
 
-    const keyPeople = Array.isArray(d.key_people)
-      ? d.key_people.map(p => `- ${p}`).join('\n')
-      : d.key_people || 'N/A'
-
+    // fix citations — handle both string URLs and object URLs
     const citations = Array.isArray(item.citations) && item.citations.length > 0
-      ? item.citations.map((url, i) => `- [${i + 1}] ${url}`).join('\n')
+      ? item.citations
+          .map(url => typeof url === 'string' ? url : url?.url || url?.href || JSON.stringify(url))
+          .filter(Boolean)
+          .map((url, i) => `- [${i + 1}] ${url}`)
+          .join('\n')
       : '- No sources recorded.'
 
-    return `# ${item.company}
+    return `# ${companyName}
 
 ## Overview
 ${d.company_overview || 'N/A'}
@@ -45,9 +49,6 @@ ${d.business_model || 'N/A'}
 
 ## Market Position
 ${d.market_position || 'N/A'}
-
-## Key People
-${keyPeople}
 
 ## Competitors
 ${competitors}

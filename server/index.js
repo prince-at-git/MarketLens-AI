@@ -4,6 +4,7 @@ import cors from 'cors';
 import { generatePDF } from './pdf.js'
 import { researchAllCompanies } from './tinyfish.js';
 
+
 const app = express();
 const port = 5000;
 

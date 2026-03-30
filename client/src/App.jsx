@@ -28,6 +28,10 @@ export default function App() {
     setCompanies(companies.filter(c => c !== name))
   }
 
+  const clearCompanies = () => {
+    setCompanies([])
+  }
+
   const handleSubmit = async () => {
     if (companies.length === 0) return
     setLoading(true)
@@ -96,6 +100,7 @@ export default function App() {
           input={input}
           onChange={setInput}
           onAdd={addCompany}
+          onClear={clearCompanies}
           onSubmit={handleSubmit}
           loading={loading}
           count={companies.length}

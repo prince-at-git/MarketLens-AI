@@ -48,12 +48,11 @@ async function researchCompany(companyName) {
 
         let result = event.result
 
-        // on production, result comes as { result: "```json\n{...}\n```" }
         if (result && typeof result === 'object' && typeof result.result === 'string') {
           result = result.result
         }
 
-        // strip markdown code fences if present
+        
         if (typeof result === 'string') {
           result = result
             .replace(/```json/gi, '')

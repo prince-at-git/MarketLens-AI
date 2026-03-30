@@ -5,7 +5,7 @@ export function buildMarkdown(rawData) {
     }
     const d = item.data
 
-    // capitalize first letter of company name
+    
     const companyName = item.company.charAt(0).toUpperCase() + item.company.slice(1)
 
     const risks = Array.isArray(d.risks_opportunities?.risks)
@@ -24,7 +24,7 @@ export function buildMarkdown(rawData) {
       ? d.recent_news.map(n => `- ${n}`).join('\n')
       : d.recent_news || 'N/A'
 
-    // fix citations — handle both string URLs and object URLs
+    //  citation handling logic
     const citations = Array.isArray(item.citations) && item.citations.length > 0
       ? item.citations
           .map(url => typeof url === 'string' ? url : url?.url || url?.href || JSON.stringify(url))

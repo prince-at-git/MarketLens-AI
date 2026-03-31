@@ -1,100 +1,158 @@
 # MarketLens AI
 
-A AI-powered market research tool built as a hiring task project.
-Users enter up to 10 company names and receive a comprehensive, 
-structured market research report generated automatically.
+MarketLens AI is an AI-powered market research tool built as a hiring task.That lets users queue up to 10 companies, run research across them in parallel, preview the compiled report in the browser, and export the result as Markdown or PDF.
 
 ## What it does
 
-MarketLens AI takes a list of company names and autonomously browses 
-the web to research each one in real time. It compiles everything into 
-a clean, readable report covering:
+The app generates a structured market research brief for each submitted company. The report is organized around:
 
 - Company overview
-- Financials (revenue, funding, valuation)
+- Business model
+- Financials
 - Market position
 - Competitors
 - Recent news and trends
-- Risks and opportunities
+- Risks
+- Opportunities
 
-Reports can be downloaded as **PDF** or **Markdown** files.
+After the run completes, the report is rendered directly in the browser and can be downloaded in:
 
-## Key Features
+- Markdown
+- PDF
 
-- Enter up to 10 companies at once
-- Companies are researched in parallel
-- Report renders directly in the browser as formatted text
-- One-click export to PDF or Markdown
+## Current UI Features
 
+- Add up to 10 companies to the queue
+- See a live `x/10 companies added` counter
+- Remove individual company chips
+- Clear the entire queue with `Clear all`
+- Submit research with `Generate Research Report`
+- See a loading state while research is running
+- View a lightweight terminal-style activity log
+- Preview the final report in a light document-style reading surface
+- Download the finished report as Markdown or PDF
+
+
+### Frontend
+
+- React
+- Vite
+- Axios
+- React Markdown
+
+### Backend
+
+- Node.js
+- Express
+- CORS
+- PDFKit
 
 ## Project Structure
-```
-MarketLens-AI/
-├── client/                 # React frontend
+
+```text
+market-research-app/
+├── client/
 │   ├── src/
-│   │   ├── components/     # Header, InputBar, CompanyChips, LogFeed, Report, LoadingScreen
-│   │   ├── api/            # API call logic
-│   │   ├── utils/          # Markdown builder
-│   │   └── App.jsx         # Root component, holds all state
+│   │   ├── api/
+│   │   │   └── research.js         
+│   │   ├── components/
+│   │   │   ├── Header.jsx          
+│   │   │   ├── InputBar.jsx        
+│   │   │   ├── CompanyChips.jsx    
+│   │   │   ├── LogFeed.jsx         
+│   │   │   └── Report.jsx          
+│   │   ├── utils/
+│   │   │   └── buildMarkdown.js    
+│   │   ├── App.jsx                 
+│   │   ├── main.jsx                
+│   │   └── index.css               
+│   ├── .env
 │   └── package.json
-└── server/                 # Express backend
-    ├── index.js            # Routes
-    ├── tinyfish.js         # Research agent integration
-    ├── pdf.js              # PDF generation
-    └── package.json
+├── server/
+│   ├── index.js                    
+│   ├── tinyfish.js                 
+│   ├── pdf.js                      
+│   ├── .env
+│   └── package.json
+└── README.md
 ```
+
 
 ## Local Setup
 
 ### Prerequisites
-- Node.js v18+
-- API key for the research agent service
 
-### 1. Clone the repo
-```bash
-git clone https://github.com/prince-at-git/MarketLens-AI.git
-cd MarketLens-AI
-```
+- Node.js 18+
+- A configured server-side research API key in `server/.env`
 
-### 2. Set up the server
+### 1. Install server dependencies
+
 ```bash
 cd server
 npm install
 ```
 
-Create `server/.env`:
-```
-RESEARCH_API_KEY=your_key_here
-```
+Create `server/.env` and add:
 
-Start the server:
+- the required server-side API key expected by your local server setup
+- `FRONT_END_URL` for any deployed frontend origin you want to allow
+
+Start the backend:
+
 ```bash
 node index.js
 ```
 
-### 3. Set up the client (new terminal)
+### 2. Install client dependencies
+
 ```bash
 cd client
 npm install
 ```
 
 Create `client/.env`:
-```
+
+```bash
 VITE_API_URL=http://localhost:5000
 ```
 
-Start the client:
+Start the frontend:
+
 ```bash
 npm run dev
 ```
 
-### 4. Open the app
-Go to `http://localhost:5173` in your browser.
+### 3. Open the app
 
-## How it works
+Visit:
 
-1. User enters company names one by one and hits Send
-2. The backend receives the list and fires parallel research jobs
-3. Each company is researched live from the web in real time
-4. Raw research data is compiled into a structured markdown report
-5. The report is displayed in the browser and available to download
+```text
+http://localhost:5173
+```
+
+## Available Routes
+
+### `GET /health`
+
+Basic server health check.
+
+Response:
+
+```json
+{ "status": "ok" }
+```
+
+### `POST /api/research`
+
+Accepts a list of company names and returns structured research data.
+
+### `POST /api/download/pdf`
+
+Accepts the previously returned `rawData` and returns a generated PDF file.
+
+## Notes
+
+- The UI log feed is a lightweight progress display for the user experience.
+- Markdown preview and PDF export are built from the same raw research payload.
+- Markdown is generated on the frontend.
+- PDF is generated on the backend.

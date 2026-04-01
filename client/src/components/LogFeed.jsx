@@ -2,12 +2,12 @@ export default function LogFeed({ logs, loading }) {
   if (logs.length === 0) return null
 
   return (
-    <div className="log-feed">
+    <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-6 font-mono text-xs text-emerald-400">
       {logs.map((log, i) => (
-        <div key={i} className="log-line">&gt; {log}</div>
+        <div key={i} className="mb-0.5">&gt; {log}</div>
       ))}
       {loading && (
-        <div className="log-line log-waiting">&gt; working...</div>
+        <div className="mb-0.5 text-zinc-600">&gt; working...</div>
       )}
     </div>
   )

@@ -1,4 +1,3 @@
-import ReactMarkdown from 'react-markdown'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL
@@ -39,9 +38,9 @@ export default function Report({ report, rawData, onDownloadMarkdown }) {
   }
 
   return (
-    <div className="bg-zinc-50 border border-zinc-700 rounded-xl p-8 shadow-lg">
+    <div className="bg-zinc-50 border border-zinc-700 rounded-xl shadow-lg overflow-hidden">
       {/* Download buttons */}
-      <div className="flex gap-2 mb-6 pb-6 border-b border-zinc-200">
+      <div className="flex gap-2 p-4 border-b border-zinc-200 bg-white">
         <button
           onClick={onDownloadMarkdown}
           className="px-4 py-2 rounded-lg border border-zinc-300 bg-white text-zinc-800 text-sm hover:bg-zinc-100 transition-colors shadow-sm"
@@ -62,10 +61,11 @@ export default function Report({ report, rawData, onDownloadMarkdown }) {
         </button>
       </div>
 
-      {/* Report content */}
-      <div className="prose prose-zinc max-w-none">
-        <ReactMarkdown>{report}</ReactMarkdown>
-      </div>
+      {/* HTML report preview */}
+      <div
+        className="bg-white"
+        dangerouslySetInnerHTML={{ __html: report }}
+      />
     </div>
   )
 }

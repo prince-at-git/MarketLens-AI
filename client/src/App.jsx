@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { fetchResearch } from './api/research.js'
+import { buildHTML }     from './utils/buildHTML.js'
 import { buildMarkdown } from './utils/buildMarkdown.js'
 import Header         from './components/Header.jsx'
 import ProviderToggle from './components/ProviderToggle.jsx'
@@ -67,7 +68,7 @@ export default function App() {
       clearInterval(fakeTimer)
       setRawData(data)
       setLogs(prev => [...prev, 'Done. Rendering report...'])
-      setReport(buildMarkdown(data))
+      setReport(buildHTML(data))
     } catch (err) {
       clearInterval(fakeTimer)
       setLogs(prev => [...prev, `Error: ${err.message}`])

@@ -1,5 +1,5 @@
 // Builds a fully-styled, self-contained HTML report from rawData.
-// Used for browser preview (client) and exported to PDF/DOCX (server copy).
+// All CSS is scoped to .report-root to prevent bleed into the parent app.
 
 const NA = 'Not Available'
 
@@ -20,15 +20,10 @@ function titleCase(str) {
   return (str || '').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1))
 }
 
-// ── Small HTML fragments ──────────────────────────────────────────────────────
+// ── HTML fragments ────────────────────────────────────────────────────────────
 
 function kvRow(label, value) {
   return `<div class="kv-label">${esc(label)}</div><div class="kv-value">${esc(s(value))}</div>`
-}
-
-function kvRowList(label, items = []) {
-  const text = Array.isArray(items) && items.length ? items.map(esc).join(', ') : NA
-  return `<div class="kv-label">${esc(label)}</div><div class="kv-value">${text}</div>`
 }
 
 function finRow(label, obj) {
@@ -69,17 +64,23 @@ function checklist(selected = [], options) {
 
 function extraTags(selected = [], options) {
   return selected
-    .filter(t => !options.some(o => o.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(o.toLowerCase())))
+    .filter(t => !options.some(o =>
+      o.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(o.toLowerCase())
+    ))
     .map(t => `<li class="checked"><span class="check-box">&#10003;</span>${esc(t)}</li>`)
     .join('\n')
 }
 
-// ── CSS ───────────────────────────────────────────────────────────────────────
+// ── CSS (scoped to .report-root) ──────────────────────────────────────────────
 
 const CSS = `
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .report-root *, .report-root *::before, .report-root *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-  body {
+  .report-root {
     font-family: 'Segoe UI', -apple-system, Arial, sans-serif;
     font-size: 11pt;
     color: #18181b;
@@ -87,83 +88,57 @@ const CSS = `
     line-height: 1.55;
   }
 
-  a { color: #2563eb; text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  .report-root a { color: #2563eb; text-decoration: none; }
+  .report-root a:hover { text-decoration: underline; }
 
   /* ── COVER ── */
-  .report-cover {
+  .report-root .report-cover {
     text-align: center;
     padding: 56px 48px 40px;
     border-bottom: 3px solid #09090b;
-    margin-bottom: 0;
   }
-  .report-cover h1 {
-    font-size: 26pt;
+  .report-root .report-cover h1 {
+    font-size: 24pt;
     font-weight: 800;
     color: #09090b;
     letter-spacing: 0.4px;
     margin-bottom: 10px;
     text-transform: uppercase;
   }
-  .report-cover .cover-sub {
+  .report-root .report-cover .cover-sub {
     font-size: 10.5pt;
     color: #52525b;
     margin-top: 6px;
   }
-  .report-cover .cover-sys {
-    font-size: 9pt;
-    color: #71717a;
-    margin-top: 4px;
-    font-style: italic;
-  }
 
   /* ── COMPANY SECTION ── */
-  .company-section {
-    padding: 40px 48px 48px;
-  }
-  .company-section + .company-section {
-    border-top: 3px solid #09090b;
-  }
+  .report-root .company-section { padding: 40px 48px 48px; }
+  .report-root .company-section + .company-section { border-top: 3px solid #09090b; }
 
   /* ── COMPANY HEADER ── */
-  .company-header {
+  .report-root .company-header {
     margin-bottom: 20px;
     padding-bottom: 16px;
-    border-bottom: 1px solid #e4e4e7;
+    border-bottom: 2px solid #09090b;
   }
-  .company-name {
+  .report-root .company-name {
     font-size: 22pt;
     font-weight: 800;
     color: #09090b;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
-  .company-meta-bar {
+  .report-root .company-meta-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 18px;
     font-size: 9.5pt;
     color: #52525b;
-    align-items: center;
   }
-  .company-meta-bar .meta-item strong { color: #18181b; }
-  .completion-badge {
-    background: #18181b;
-    color: #ffffff;
-    padding: 2px 10px;
-    border-radius: 999px;
-    font-size: 8.5pt;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-  .system-line {
-    font-size: 9pt;
-    color: #71717a;
-    margin-top: 6px;
-  }
+  .report-root .company-meta-bar .meta-item strong { color: #18181b; }
 
   /* ── SECTION HEADINGS ── */
-  h2 {
-    font-size: 11pt;
+  .report-root h2 {
+    font-size: 10.5pt;
     font-weight: 700;
     color: #ffffff;
     background: #18181b;
@@ -172,7 +147,7 @@ const CSS = `
     text-transform: uppercase;
     letter-spacing: 0.6px;
   }
-  h3 {
+  .report-root h3 {
     font-size: 10.5pt;
     font-weight: 700;
     color: #27272a;
@@ -182,31 +157,28 @@ const CSS = `
   }
 
   /* ── KV GRID ── */
-  .kv-grid {
+  .report-root .kv-grid {
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 210px 1fr;
     gap: 5px 16px;
     margin: 8px 0 18px;
     font-size: 10.5pt;
   }
-  .kv-label { font-weight: 600; color: #18181b; }
-  .kv-value { color: #3f3f46; }
+  .report-root .kv-label { font-weight: 600; color: #18181b; }
+  .report-root .kv-value { color: #3f3f46; }
 
   /* ── BULLET LISTS ── */
-  .bullet-list {
-    margin: 8px 0 14px 20px;
-    padding: 0;
-  }
-  .bullet-list li {
+  .report-root .bullet-list { margin: 8px 0 14px 20px; padding: 0; }
+  .report-root .bullet-list li {
     margin-bottom: 5px;
     font-size: 10.5pt;
     color: #3f3f46;
     line-height: 1.5;
   }
-  .bullet-list li strong { color: #18181b; }
+  .report-root .bullet-list li strong { color: #18181b; }
 
   /* ── CHECKLISTS ── */
-  .checklist {
+  .report-root .checklist {
     list-style: none;
     padding: 0;
     margin: 8px 0 14px;
@@ -214,41 +186,41 @@ const CSS = `
     grid-template-columns: repeat(2, 1fr);
     gap: 5px 24px;
   }
-  .checklist li {
+  .report-root .checklist li {
     display: flex;
     align-items: center;
     gap: 7px;
     font-size: 10pt;
     color: #52525b;
   }
-  .checklist li.checked { color: #18181b; font-weight: 500; }
-  .check-box {
+  .report-root .checklist li.checked { color: #18181b; font-weight: 500; }
+  .report-root .check-box {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 14px;
     height: 14px;
+    min-width: 14px;
     border: 1.5px solid #a1a1aa;
     border-radius: 3px;
     font-size: 9pt;
-    flex-shrink: 0;
     color: #18181b;
   }
-  .checklist li.checked .check-box {
+  .report-root .checklist li.checked .check-box {
     background: #18181b;
     border-color: #18181b;
     color: #ffffff;
   }
 
   /* ── TABLES ── */
-  table {
+  .report-root table {
     width: 100%;
     border-collapse: collapse;
     margin: 10px 0 20px;
     font-size: 10pt;
   }
-  thead tr { background: #18181b; }
-  thead th {
+  .report-root thead tr { background: #18181b; }
+  .report-root thead th {
     padding: 9px 12px;
     text-align: left;
     font-weight: 600;
@@ -256,37 +228,35 @@ const CSS = `
     font-size: 9.5pt;
     letter-spacing: 0.2px;
   }
-  tbody tr:nth-child(even) { background: #f4f4f5; }
-  tbody tr:nth-child(odd)  { background: #fafafa; }
-  tbody td {
+  .report-root tbody tr:nth-child(even) { background: #f4f4f5; }
+  .report-root tbody tr:nth-child(odd)  { background: #fafafa; }
+  .report-root tbody td {
     padding: 8px 12px;
     color: #27272a;
     border-bottom: 1px solid #e4e4e7;
     vertical-align: top;
     font-size: 10pt;
   }
-  tbody td:first-child { font-weight: 600; color: #18181b; }
-  tbody tr:hover { background: #f0f0f1; }
+  .report-root tbody td:first-child { font-weight: 600; color: #18181b; }
+  .report-root tbody tr:hover { background: #f0f0f1; }
 
   /* ── ANALYSIS PARAGRAPHS ── */
-  .analysis-block {
-    margin-bottom: 18px;
-  }
-  .analysis-block p {
+  .report-root .analysis-block { margin-bottom: 18px; }
+  .report-root .analysis-block p {
     font-size: 10.5pt;
     color: #3f3f46;
     line-height: 1.7;
   }
 
   /* ── SOURCES ── */
-  .sources-list {
+  .report-root .sources-list {
     list-style: none;
     padding: 0;
     margin: 8px 0;
     columns: 2;
     column-gap: 24px;
   }
-  .sources-list li {
+  .report-root .sources-list li {
     font-size: 8.5pt;
     color: #52525b;
     margin-bottom: 4px;
@@ -295,7 +265,7 @@ const CSS = `
   }
 
   /* ── DIVIDER ── */
-  .divider {
+  .report-root .divider {
     border: none;
     border-top: 1px solid #e4e4e7;
     margin: 22px 0;
@@ -303,42 +273,39 @@ const CSS = `
 
   /* ── PRINT / PDF ── */
   @media print {
-    body { font-size: 10pt; }
-    .report-cover { page-break-after: always; }
-    .company-section + .company-section { page-break-before: always; }
-    h2 { page-break-after: avoid; }
-    h3 { page-break-after: avoid; }
-    table { page-break-inside: avoid; }
-    .analysis-block { page-break-inside: avoid; }
-    .company-header { page-break-inside: avoid; }
-    a { color: #18181b; }
+    .report-root { font-size: 10pt; }
+    .report-root .report-cover { page-break-after: always; }
+    .report-root .company-section + .company-section { page-break-before: always; }
+    .report-root h2  { page-break-after: avoid; }
+    .report-root h3  { page-break-after: avoid; }
+    .report-root table { page-break-inside: avoid; }
+    .report-root .analysis-block { page-break-inside: avoid; }
+    .report-root a { color: #18181b; }
   }
 `
 
 // ── Per-company section ───────────────────────────────────────────────────────
 
-function buildSection(item, idx) {
+function buildSection(item) {
   if (item.error) {
     return `<div class="company-section">
       <div class="company-header">
         <div class="company-name">${esc(titleCase(item.company))}</div>
       </div>
-      <p style="color:#cc0000;font-size:10.5pt;">Research failed: ${esc(item.error)}</p>
+      <p style="color:#cc0000;font-size:10.5pt">Research failed: ${esc(item.error)}</p>
     </div>`
   }
 
-  const d       = item.data   || {}
-  const fin     = d.financials        || {}
-  const ops     = d.operational       || {}
-  const meta    = d.form_metadata     || {}
-  const srcDoc  = d.source_documentation || {}
-  const verif   = d.verification      || {}
+  const d      = item.data || {}
+  const fin    = d.financials            || {}
+  const ops    = d.operational           || {}
+  const meta   = d.form_metadata         || {}
+  const srcDoc = d.source_documentation  || {}
+  const verif  = d.verification          || {}
 
-  const name       = esc(titleCase(d.company_name || item.company))
-  const today      = esc(meta.last_updated || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }))
-  const reviewDue  = esc(s(meta.review_due_date))
-  const completePct = d.completion_percent ? `${d.completion_percent}% Complete` : NA
-  const updatedBy  = esc(s(meta.updated_by) !== NA ? s(meta.updated_by) : 'AI Research System')
+  const name      = esc(titleCase(d.company_name || item.company))
+  const today     = esc(meta.last_updated || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }))
+  const reviewDue = esc(s(meta.review_due_date))
 
   // ── Product categories & geo presence ──
   const productCategories = Array.isArray(d.product_categories) && d.product_categories.length
@@ -373,24 +340,25 @@ function buildSection(item, idx) {
         const src = e.source && e.source !== NA && e.source !== 'N/A'
           ? `<a href="${esc(e.source)}" target="_blank">link ↗</a>`
           : esc(s(e.source))
+        const impColor = e.importance === 'High' ? '#cc0000' : e.importance === 'Medium' ? '#d97706' : '#3f3f46'
         return `<tr>
           <td>${esc(s(e.title))}</td>
           <td>${esc(det)}</td>
-          <td><span style="font-weight:600;color:${e.importance === 'High' ? '#cc0000' : e.importance === 'Medium' ? '#d97706' : '#3f3f46'}">${esc(s(e.importance))}</span></td>
+          <td style="font-weight:600;color:${impColor}">${esc(s(e.importance))}</td>
           <td>${src}</td>
           <td>${esc(s(e.date))}</td>
         </tr>`
       }).join('')
     : dataRow([NA, '—', '—', '—', '—'])
 
-  // ── Sector / Geo / Strategic checkboxes ──
+  // ── Checklist options ──
   const sectorOpts = ['Safety & PPE', 'Healthcare & Medical', 'Grocery & Food Distribution', 'Foodservice & Catering', 'Retail & Consumables', 'Technology & Office']
   const geoOpts    = ['United Kingdom', 'Ireland', 'Europe', 'North America', 'Asia Pacific']
   const stratOpts  = ['Consolidation', 'Acquisition Target', 'Acquirer', 'Growth Stage', 'Mature Market']
 
   // ── Sources ──
   const sourcesHtml = (item.sources || []).length
-    ? (item.sources || []).slice(0, 20).map((url, i) =>
+    ? item.sources.slice(0, 20).map((url, i) =>
         `<li><a href="${esc(url)}" target="_blank">[${i + 1}] ${esc(url)}</a></li>`
       ).join('')
     : `<li>${NA}</li>`
@@ -404,10 +372,8 @@ function buildSection(item, idx) {
     <div class="company-meta-bar">
       <span class="meta-item"><strong>Status:</strong> ${esc(s(d.status))}</span>
       <span class="meta-item"><strong>Last Updated:</strong> ${today}</span>
-      <span class="meta-item"><strong>Updated By:</strong> ${updatedBy}</span>
-      <span class="completion-badge">${esc(completePct)}</span>
+      <span class="meta-item"><strong>Core Sector:</strong> ${esc(s(d.core_sector))}</span>
     </div>
-    <div class="system-line">System: Central Directory – Internal Business Intelligence &nbsp;|&nbsp; Template Version: 1.0</div>
   </div>
 
   <!-- 1. COMPANY OVERVIEW -->
@@ -415,11 +381,9 @@ function buildSection(item, idx) {
 
   <h3>Basic Information</h3>
   <div class="kv-grid">
-    ${kvRow('Company Name', name.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"'))}
+    ${kvRow('Company Name', d.company_name || item.company)}
     ${kvRow('Status', d.status)}
     ${kvRow('Data Last Updated', today.replace(/&amp;/g, '&'))}
-    ${kvRow('Updated By', updatedBy.replace(/&amp;/g, '&'))}
-    ${kvRow('Completion %', completePct)}
   </div>
 
   <h3>Core Business Classification</h3>
@@ -635,7 +599,6 @@ function buildSection(item, idx) {
     <tbody>
       ${dataRow(['Form Created Date', meta.created_date || today.replace(/&amp;/g, '&')])}
       ${dataRow(['Last Updated', today.replace(/&amp;/g, '&')])}
-      ${dataRow(['Updated By', updatedBy.replace(/&amp;/g, '&')])}
       ${dataRow(['Review Due Date', reviewDue.replace(/&amp;/g, '&')])}
       ${dataRow(['Form Status', meta.form_status || 'In Progress'])}
       ${dataRow(['Data Classification', 'Internal Use Only'])}
@@ -657,8 +620,7 @@ function buildSection(item, idx) {
 
 export function buildHTML(rawData) {
   const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-
-  const sections = rawData.map((item, idx) => buildSection(item, idx)).join('\n')
+  const sections = rawData.map(item => buildSection(item)).join('\n')
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -669,15 +631,16 @@ export function buildHTML(rawData) {
   <style>${CSS}</style>
 </head>
 <body>
+<div class="report-root">
 
   <div class="report-cover">
     <h1>Competitor Metrics Extraction Report</h1>
-    <p class="cover-sub">Generated on ${today}</p>
-    <p class="cover-sys">System: Central Directory – Internal Business Intelligence &nbsp;|&nbsp; Template Version: 1.0 &nbsp;|&nbsp; Data Classification: Internal Use Only</p>
+    <p class="cover-sub">Generated on ${today} &nbsp;|&nbsp; Central Directory – Internal Business Intelligence</p>
   </div>
 
   ${sections}
 
+</div>
 </body>
 </html>`
 }
